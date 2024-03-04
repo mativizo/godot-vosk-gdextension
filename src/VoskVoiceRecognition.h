@@ -19,6 +19,8 @@ namespace godot {
 
             // destructor
             ~VoskVoiceRecognition();
+
+            void init();
             void voice_recognition();
 
             void _process(double delta);
