@@ -1,0 +1,7 @@
+#ifndef VOSK_VOICE_RECOGNITION_REGISTER_TYPES_H
+#define VOSK_VOICE_RECOGNITION_REGISTER_TYPES_H
+
+void initialize_vosk_voice_recognition();
+void uninitialize_vosk_voice_recognition();
+
+#endif
