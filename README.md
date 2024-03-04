@@ -4,6 +4,8 @@
 
 
 ### Development
-
-1. `cd godot-cpp`
-2. `python -m SCons`
+1. `cd godot-cpp`.
+2. `python -m SCons`.
+3. `cd ..`
+4. `python -m Scons`.
+5. Run `/demo/godot.project` in Godot.
