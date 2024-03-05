@@ -50,6 +50,7 @@ Vosk models can be found on [Vosk website](https://alphacephei.com/vosk/). Check
 -  ✔ Create GDExtension.
 -  ✔ Load Vosk library.
 -  ✔ Method to load models.
+- 🚧 Add ability to provide word list for accuracy.
 - 🚧 Get audio buffer to work with.
 - ❌ Pass audio converted audio buffer or convert it on the GDE side.
 - ❌ Get partial text results.
