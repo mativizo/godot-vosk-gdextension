@@ -4,8 +4,7 @@ extends Node2D
 
 func _ready():
 	vosk_voice_recognition.vosk_ready_signal.connect(_on_vosk_ready)
-	
-	vosk_voice_recognition.init()
+	vosk_voice_recognition.init("x", 16000.0)
 	
 func _on_vosk_ready(is_ready :bool):
 	if is_ready: print("Vosk is ready.")

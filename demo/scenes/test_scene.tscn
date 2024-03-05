@@ -6,3 +6,4 @@
 script = ExtResource("1_rnkit")
 
 [node name="VoskVoiceRecognition" type="VoskVoiceRecognition" parent="."]
+process_mode = 0

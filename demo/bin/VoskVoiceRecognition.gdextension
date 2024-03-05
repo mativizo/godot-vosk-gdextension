@@ -1,0 +1,15 @@
+[configuration]
+entry_symbol = "vosk_voice_recognition_init"
+compatibility_minimum = "4.2"
+
+[libraries]
+windows.debug.x86_64 = "res://bin/VoskVoiceRecognition.windows.template_debug.x86_64.dll"
+windows.release.x86_64 = "res://bin/VoskVoiceRecognition.windows.template_debug.x86_64.dll"
+
+[dependencies]
+windows.debug.x86_64 = {
+    "res://bin/vosk/libvosk.lib": ""
+}
+windows.release.x86_64 = {
+    "res://bin/vosk/libvosk.lib": ""
+}
