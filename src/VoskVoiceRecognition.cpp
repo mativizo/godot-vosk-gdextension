@@ -8,10 +8,12 @@
 using namespace godot;
 
 void VoskVoiceRecognition::_bind_methods() {
-    ADD_SIGNAL(MethodInfo("vosk_ready_signal", PropertyInfo(Variant::BOOL, "ready"), PropertyInfo(Variant::STRING, "error")));
     ClassDB::bind_method(D_METHOD("init", "model_path"), &VoskVoiceRecognition::init);
     ClassDB::bind_method(D_METHOD("setLogLevel", "log_level"), &VoskVoiceRecognition::setLogLevel);
     ClassDB::bind_method(D_METHOD("voice_recognition"), &VoskVoiceRecognition::voice_recognition);
+
+    ADD_SIGNAL(MethodInfo("vosk_ready_signal", PropertyInfo(Variant::BOOL, "ready"), PropertyInfo(Variant::STRING, "error")));
+    ADD_SIGNAL(MethodInfo("vosk_model_loaded", PropertyInfo(Variant::STRING, "model_path")));
 }
 
 VoskVoiceRecognition::VoskVoiceRecognition() {
@@ -31,6 +33,9 @@ void VoskVoiceRecognition::init(String model_path = "") {
         emit_signal("vosk_ready_signal", false, "Model" + model_path + " not found.");
         return;
     }
+
+    emit_signal("vosk_model_loaded", model_path);
+
     recognizer = vosk_recognizer_new(model, sample_rate);
     if (recognizer == nullptr) {
         emit_signal("vosk_ready_signal", false, "Model" + model_path + " not loaded.");
