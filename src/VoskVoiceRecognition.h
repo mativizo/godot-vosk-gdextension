@@ -11,6 +11,9 @@ namespace godot {
         private:
             bool recognizing = false;
             VoskRecognizer *recognizer;
+            VoskModel *model;
+            int voskLogLevel = 2;
+            double sample_rate = 16000;
 
         protected:
             static void _bind_methods();
@@ -22,7 +25,8 @@ namespace godot {
             // destructor
             ~VoskVoiceRecognition();
 
-            void init(String model_name, double sample_rate);
+            void init(String model_path);
+            void setLogLevel(int log_level);
             void voice_recognition();
 
             void _process(double delta);
