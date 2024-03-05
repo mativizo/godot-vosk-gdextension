@@ -14,12 +14,15 @@ void VoskVoiceRecognition::_bind_methods() {
 
     ADD_SIGNAL(MethodInfo("vosk_ready_signal", PropertyInfo(Variant::BOOL, "ready"), PropertyInfo(Variant::STRING, "error")));
     ADD_SIGNAL(MethodInfo("vosk_model_loaded", PropertyInfo(Variant::STRING, "model_path")));
+    ADD_SIGNAL(MethodInfo("vosk_recognizer_ready", PropertyInfo(Variant::BOOL, "ready"), PropertyInfo(Variant::STRING, "error")));
 }
 
 VoskVoiceRecognition::VoskVoiceRecognition() {
     if (Engine::get_singleton()->is_editor_hint()) {
         set_process_mode(Node::ProcessMode::PROCESS_MODE_DISABLED);
     }
+
+    
 
     // set default log level
     vosk_set_log_level(voskLogLevel);
@@ -39,9 +42,11 @@ void VoskVoiceRecognition::init(String model_path = "") {
     recognizer = vosk_recognizer_new(model, sample_rate);
     if (recognizer == nullptr) {
         emit_signal("vosk_ready_signal", false, "Model" + model_path + " not loaded.");
+        emit_signal("vosk_recognizer_ready_signal", false, "Failed to initialize voice recognizer.");
         return;
     }
     emit_signal("vosk_ready_signal", true, "Model" +  model_path + " loaded.");
+    emit_signal("vosk_recognizer_ready_signal", true, "Voice recognizer is ready to use.");
     return;
 }
 
