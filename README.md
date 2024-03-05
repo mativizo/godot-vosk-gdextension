@@ -6,6 +6,7 @@
 3. [Docs](#docs).
 4. [Dependencies](#dependencies).
 5. [Models](#models).
+6. [Todo](#todo).
 
 
 
@@ -24,7 +25,9 @@ This repository isn't ready to use in production/prototyping, because is work in
 
 ```
 # Available signals
-signal vosk_ready_signal(is_ready : bool, message : String)
+signal vosk_ready_signal(is_ready : bool, error_message : String)
+signal vosk_model_loaded_signal(model_path : String)
+signal vosk_recognizer_ready_signal(is_ready : bool, error_message : String)
 
 # Methods
 vosk_voice_recognition.init(model_path : String = "bin/models/...") -> void # init Vosk with path to model dir
@@ -40,3 +43,14 @@ This project is created around [Vosk](https://alphacephei.com/vosk/). Vosk is a 
 ### Models
 
 Vosk models can be found on [Vosk website](https://alphacephei.com/vosk/). Check the [models list here](https://alphacephei.com/vosk/models).
+
+
+### Todo
+
+-  ✔ Create GDExtension.
+-  ✔ Load Vosk library.
+-  ✔ Method to load models.
+- 🚧 Get audio buffer to work with.
+- ❌ Pass audio converted audio buffer or convert it on the GDE side.
+- ❌ Get partial text results.
+- ❌ Get full text results.

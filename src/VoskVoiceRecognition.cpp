@@ -12,9 +12,9 @@ void VoskVoiceRecognition::_bind_methods() {
     ClassDB::bind_method(D_METHOD("setLogLevel", "log_level"), &VoskVoiceRecognition::setLogLevel);
     ClassDB::bind_method(D_METHOD("voice_recognition"), &VoskVoiceRecognition::voice_recognition);
 
-    ADD_SIGNAL(MethodInfo("vosk_ready_signal", PropertyInfo(Variant::BOOL, "ready"), PropertyInfo(Variant::STRING, "error")));
-    ADD_SIGNAL(MethodInfo("vosk_model_loaded", PropertyInfo(Variant::STRING, "model_path")));
-    ADD_SIGNAL(MethodInfo("vosk_recognizer_ready", PropertyInfo(Variant::BOOL, "ready"), PropertyInfo(Variant::STRING, "error")));
+    ADD_SIGNAL(MethodInfo("vosk_ready_signal", PropertyInfo(Variant::BOOL, "ready"), PropertyInfo(Variant::STRING, "error_message")));
+    ADD_SIGNAL(MethodInfo("vosk_model_loaded_signal", PropertyInfo(Variant::STRING, "model_path")));
+    ADD_SIGNAL(MethodInfo("vosk_recognizer_ready_signal", PropertyInfo(Variant::BOOL, "ready"), PropertyInfo(Variant::STRING, "error_message")));
 }
 
 VoskVoiceRecognition::VoskVoiceRecognition() {
@@ -37,7 +37,7 @@ void VoskVoiceRecognition::init(String model_path = "") {
         return;
     }
 
-    emit_signal("vosk_model_loaded", model_path);
+    emit_signal("vosk_model_loaded_signal", model_path);
 
     recognizer = vosk_recognizer_new(model, sample_rate);
     if (recognizer == nullptr) {
