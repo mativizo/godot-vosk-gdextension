@@ -1,4 +1,13 @@
-[gd_resource type="Theme" format=3 uid="uid://3q7c2jbud5kx"]
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://3q7c2jbud5kx"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sgxox"]
+content_margin_left = 30.0
+content_margin_top = 10.0
+content_margin_right = 30.0
+content_margin_bottom = 10.0
+bg_color = Color(0.302076, 0.0723025, 0.141927, 1)
 
 [resource]
+Button/font_sizes/font_size = 32
+Button/styles/normal = SubResource("StyleBoxFlat_sgxox")
 Label/font_sizes/font_size = 24

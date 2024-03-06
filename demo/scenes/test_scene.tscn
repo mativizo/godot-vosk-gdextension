@@ -1,10 +1,12 @@
-[gd_scene load_steps=4 format=3 uid="uid://b77o5sftb31wy"]
+[gd_scene load_steps=5 format=3 uid="uid://b77o5sftb31wy"]
 
 [ext_resource type="Script" path="res://scenes/test_scene.gd" id="1_rnkit"]
 [ext_resource type="Theme" uid="uid://3q7c2jbud5kx" path="res://new_theme.tres" id="2_75758"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vhcbu"]
 bg_color = Color(0, 0, 0, 1)
+
+[sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_x4b5w"]
 
 [node name="TestScene" type="Control"]
 layout_mode = 3
@@ -95,3 +97,13 @@ text = "Full text:"
 layout_mode = 2
 theme = ExtResource("2_75758")
 text = "..."
+
+[node name="StartListening" type="Button" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+text = "Start Listening"
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = SubResource("AudioStreamMicrophone_x4b5w")
+autoplay = true
+bus = &"Record"

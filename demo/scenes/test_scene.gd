@@ -5,8 +5,24 @@ extends Control
 
 # ui elements
 @onready var loaded_model_label : Label = $MainMarginContainer/HBoxColumns/VBoxLeftColumn/LoadedModel
+@onready var listening_button : Button = $MainMarginContainer/HBoxColumns/VBoxRightColumn/StartListening
+
+var record_bus_name : String = "Record"
+var is_listening : bool = false
+var timeout : int = 12000
+var record_effect : AudioEffectRecord
+
+
+
 
 func _ready():
+	# get record bus
+	var record_idx = AudioServer.get_bus_index("Record")
+	
+	# get effect from bus
+	record_effect = AudioServer.get_bus_effect(record_idx, 0)
+	
+	
 	vosk_voice_recognition.vosk_ready_signal.connect(_on_vosk_ready)
 	vosk_voice_recognition.vosk_model_loaded_signal.connect(_on_vosk_model_loaded)
 	vosk_voice_recognition.vosk_recognizer_ready_signal.connect(_on_vosk_recognizer_ready)
@@ -29,4 +45,22 @@ func _on_vosk_recognizer_ready(is_ready : bool, error_message : String):
 	print("Voice recognizer is ready! Message: "+str(error_message))
 	
 	# Start recognizing process
+		
+func _microphone_processing():
+	if not record_effect: return
+	
+	# recording...
+	if record_effect.is_recording_active():
+		var voice_sample = record_effect.get_recording()
+		
+		if not voice_sample: return
+		
+		var data : PackedByteArray = []
+		
+		
+		
+		
+		
+		
+		
 		

@@ -2,16 +2,30 @@
 [WIP] GDExtension for VOSK (Voice Recognition) library. This extension adds ability to convert speech to text in your Godot 4 game.
 
 1. [State](#state).
-2. [Development](#development).
-3. [Docs](#docs).
-4. [Dependencies](#dependencies).
-5. [Models](#models).
-6. [Todo](#todo).
+2. [Usage](#usage).
+3. [Development](#development).
+4. [Docs](#docs).
+5. [Dependencies](#dependencies).
+6. [Models](#models).
+7. [Todo](#todo).
 
 
 
 ### State
 This repository isn't ready to use in production/prototyping, because is work in progress. When extension will be ready I'll update this README.md accordingly.
+
+### Usage
+
+1. First, you need to get the `godot-vosk-gdextension`. To do so, you can navigate to the releases tab or clone and build this repository by yourself.
+2. Add the GDExtension to your project.
+3. Enable Audio Input in `Project Settings -> Audio -> Driver -> Enable Input` (Advanced Settings).
+4. Add `Record` bus by navigating to bottom section of the editor, then click the `Audio` tab and the `Add bus` button.
+5. Under `Record` bus click the `Add Effect` button and select `Record` effect.
+6. Add the `AudioStreamPlayer` node to your scene.
+7. In the inspector (`AudioStreamPlayer`) as Stream select `new AudioStreamMicrophone`.
+8. Enable `AudioStreamPlayer` autoplay and select `Record` as a Bus at the bottom of the inspector.
+9. 
+
 
 ### Development
 1. `cd godot-cpp`.
