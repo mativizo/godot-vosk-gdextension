@@ -27,6 +27,7 @@ namespace godot {
             void initVosk(String p_model_path);
             void setLogLevel(int p_log_level);
             void setWordsJson(String p_words_json);
+            int acceptWaveform(PackedByteArray p_raw_data, int p_length);
 
             void _process(double delta);
     };

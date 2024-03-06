@@ -51,14 +51,35 @@ func _microphone_processing():
 	
 	# recording...
 	if record_effect.is_recording_active():
-		var voice_sample = record_effect.get_recording()
+		var voice_sample : AudioStreamWAV = record_effect.get_recording()
 		
 		if not voice_sample: return
 		
-		var data : PackedByteArray = []
+		var data : Array = []
+		if voice_sample.stereo: data = _stereo_to_mono(voice_sample.data)
+		else: data = voice_sample.data
 		
+		var apply_results = vosk_voice_recognition.applyWaveform(data, data.size())
+		if apply_results == 1: print("silence occured")
+		elif apply_results == 0: print("decoding continues")
+		elif apply_results == -1: print("exception occured")
+		elif apply_results == -2: print("you must call initVosk first")
 		
-		
+
+func _stereo_to_mono(input_data : PackedByteArray) -> PackedByteArray:
+	# check if real stereo
+	if input_data.size() % 4 != 0: return []
+	var output_data : PackedByteArray = []
+	var output_index : int = 0
+	
+	# mix channels
+	for n in range(0, input_data.size(), 4):
+		var left_channel : int = input_data[n] + (input_data[n + 1] << 8)
+		var right_channel: int = input_data[n + 2] + (input_data[n + 3] << 8)
+		var mixed_channels: int = (left_channel + right_channel) / 2
+		output_data.append(mixed_channels)
+	return output_data
+			
 		
 		
 		

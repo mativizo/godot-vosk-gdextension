@@ -24,7 +24,7 @@ This repository isn't ready to use in production/prototyping, because is work in
 6. Add the `AudioStreamPlayer` node to your scene.
 7. In the inspector (`AudioStreamPlayer`) as Stream select `new AudioStreamMicrophone`.
 8. Enable `AudioStreamPlayer` autoplay and select `Record` as a Bus at the bottom of the inspector.
-9. 
+9. ...
 
 
 ### Development
@@ -49,13 +49,22 @@ signal vosk_recognizer_ready_signal(is_ready : bool, error_message : String)
 # Methods
 
 # init Vosk with path to model dir
-vosk_voice_recognition.initVosk(p_model_path : String = "bin/models/...") -> void
+vvr.initVosk(p_model_path : String = "bin/models/...") -> void
 
 # set Vosk log level
-vosk_voice_recognition.setLogLevel(p_log_level : int) -> void
+vvr.setLogLevel(p_log_level : int) -> void
 
 # set grammar json string
-vosk_voice_recognition.setWordsJson(p_words_json : String = "[]") -> void
+vvr.setWordsJson(p_words_json : String = "[]") -> void
+
+# apply waveform data:
+vvr.applyWaveform(p_raw_data : PackedByteArray, p_length : int) -> int
+
+## returns:
+# 1 if silence is occured and you can retrieve a new utterance with result method 
+# 0 if decoding continues
+# -1 if exception occured
+# -2 if recognizer isn't instantiated
 
 ...
 ```
@@ -76,7 +85,8 @@ Vosk models can be found on [Vosk website](https://alphacephei.com/vosk/). Check
 -  ✔ Load Vosk library.
 -  ✔ Method to load models.
 -  ✔ Add ability to provide word list for accuracy.
-- 🚧 Get audio buffer to work with.
-- 🚧 Pass audio converted audio buffer or convert it on the GDE side.
+-  ✔ Get audio with AudioEffectRecord (see `demo`).
+-  ✔ Mix to mono if needed (see `demo`).
+-  ✔ Pass audio data with `applyWaveform` method.
 - ❌ Get partial text results.
 - ❌ Get full text results.

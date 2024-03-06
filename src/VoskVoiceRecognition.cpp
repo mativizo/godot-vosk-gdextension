@@ -69,3 +69,16 @@ void VoskVoiceRecognition::setWordsJson(String p_words_json = "[]")
     vosk_recognizer_set_grm(recognizer, p_words_json.utf8().get_data());
     return;
 }
+
+int VoskVoiceRecognition::acceptWaveform(PackedByteArray p_raw_data, int p_length) {
+    if (recognizer == nullptr) {
+        return -2;
+    }
+
+    const char *audioData = reinterpret_cast<const char *>(p_raw_data.ptr());
+
+
+    int result = vosk_recognizer_accept_waveform(recognizer, audioData, p_length);
+    
+    return result;
+}

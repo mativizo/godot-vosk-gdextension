@@ -98,6 +98,16 @@ layout_mode = 2
 theme = ExtResource("2_75758")
 text = "..."
 
+[node name="Label4" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+text = "Status:"
+
+[node name="Status" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+text = "Not listening."
+
 [node name="StartListening" type="Button" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
 layout_mode = 2
 theme = ExtResource("2_75758")
