@@ -1,0 +1,9 @@
+ea4bc82a6ad023ab7ee23ee620429895
+::res://::1709658992
+icon.svg::CompressedTexture2D::5172989579908595267::1709562771::1709656702::1::::<><>::
+new_theme.tres::Theme::2000265613392208539::1709635993::0::1::::<><>::
+::res://bin/::1709658953
+VoskVoiceRecognition.gdextension::GDExtension::-1::1709630774::0::1::::<><>::
+::res://scenes/::1709657119
+test_scene.gd::GDScript::-1::1709657095::0::1::::<>Control<>::
+test_scene.tscn::PackedScene::4699428333965992956::1709657119::0::1::::<><>::res://scenes/test_scene.gd<>uid://3q7c2jbud5kx::::res://new_theme.tres

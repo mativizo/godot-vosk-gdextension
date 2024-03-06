@@ -21,17 +21,28 @@ This repository isn't ready to use in production/prototyping, because is work in
 5. Run `/demo/godot.project` in Godot.
 
 
+
 ### Docs
 
-```
+```gdscript
 # Available signals
 signal vosk_ready_signal(is_ready : bool, error_message : String)
 signal vosk_model_loaded_signal(model_path : String)
 signal vosk_recognizer_ready_signal(is_ready : bool, error_message : String)
 
+
+
 # Methods
-vosk_voice_recognition.init(model_path : String = "bin/models/...") -> void # init Vosk with path to model dir
-vosk_voice_recognition.setLogLevel(int log_level) -> void # set Vosk log level
+
+# init Vosk with path to model dir
+vosk_voice_recognition.initVosk(p_model_path : String = "bin/models/...") -> void
+
+# set Vosk log level
+vosk_voice_recognition.setLogLevel(p_log_level : int) -> void
+
+# set grammar json string
+vosk_voice_recognition.setWordsJson(p_words_json : String = "[]") -> void
+
 ...
 ```
 
@@ -50,8 +61,8 @@ Vosk models can be found on [Vosk website](https://alphacephei.com/vosk/). Check
 -  ✔ Create GDExtension.
 -  ✔ Load Vosk library.
 -  ✔ Method to load models.
-- 🚧 Add ability to provide word list for accuracy.
+-  ✔ Add ability to provide word list for accuracy.
 - 🚧 Get audio buffer to work with.
-- ❌ Pass audio converted audio buffer or convert it on the GDE side.
+- 🚧 Pass audio converted audio buffer or convert it on the GDE side.
 - ❌ Get partial text results.
 - ❌ Get full text results.

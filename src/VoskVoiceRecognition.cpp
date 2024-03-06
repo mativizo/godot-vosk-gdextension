@@ -8,9 +8,9 @@
 using namespace godot;
 
 void VoskVoiceRecognition::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("init", "model_path"), &VoskVoiceRecognition::init);
+    ClassDB::bind_method(D_METHOD("initVosk", "model_path"), &VoskVoiceRecognition::initVosk);
     ClassDB::bind_method(D_METHOD("setLogLevel", "log_level"), &VoskVoiceRecognition::setLogLevel);
-    ClassDB::bind_method(D_METHOD("voice_recognition"), &VoskVoiceRecognition::voice_recognition);
+    ClassDB::bind_method(D_METHOD("setWordsJson", "words_json"), &VoskVoiceRecognition::setWordsJson);
 
     ADD_SIGNAL(MethodInfo("vosk_ready_signal", PropertyInfo(Variant::BOOL, "ready"), PropertyInfo(Variant::STRING, "error_message")));
     ADD_SIGNAL(MethodInfo("vosk_model_loaded_signal", PropertyInfo(Variant::STRING, "model_path")));
@@ -25,36 +25,47 @@ VoskVoiceRecognition::VoskVoiceRecognition() {
     
 
     // set default log level
-    vosk_set_log_level(voskLogLevel);
+    vosk_set_log_level(vosk_log_level);
 }
 
 VoskVoiceRecognition::~VoskVoiceRecognition() {}
 
-void VoskVoiceRecognition::init(String model_path = "") {
-    model = vosk_model_new(model_path.utf8().get_data());
-    if (model == nullptr) {
-        emit_signal("vosk_ready_signal", false, "Model" + model_path + " not found.");
+void VoskVoiceRecognition::initVosk(String p_model_path = "") {
+    model = vosk_model_new(p_model_path.utf8().get_data());
+    if (model == nullptr)
+    {
+        emit_signal("vosk_ready_signal", false, "Model" + p_model_path + " not found.");
         return;
     }
 
-    emit_signal("vosk_model_loaded_signal", model_path);
+    emit_signal("vosk_model_loaded_signal", p_model_path);
 
     recognizer = vosk_recognizer_new(model, sample_rate);
-    if (recognizer == nullptr) {
-        emit_signal("vosk_ready_signal", false, "Model" + model_path + " not loaded.");
+    if (recognizer == nullptr)
+    {
+        emit_signal("vosk_ready_signal", false, "Model " + p_model_path + " not loaded.");
         emit_signal("vosk_recognizer_ready_signal", false, "Failed to initialize voice recognizer.");
         return;
     }
-    emit_signal("vosk_ready_signal", true, "Model" +  model_path + " loaded.");
+    emit_signal("vosk_ready_signal", true, "Model " + p_model_path + " loaded.");
     emit_signal("vosk_recognizer_ready_signal", true, "Voice recognizer is ready to use.");
     return;
 }
 
-void VoskVoiceRecognition::voice_recognition() {}
-
 void VoskVoiceRecognition::_process(double delta) {}
 
-void VoskVoiceRecognition::setLogLevel(int log_level) {
-    voskLogLevel = log_level;
-    vosk_set_log_level(log_level);
+void VoskVoiceRecognition::setLogLevel(int p_log_level) {
+    vosk_log_level = p_log_level;
+    vosk_set_log_level(p_log_level);
+}
+
+void VoskVoiceRecognition::setWordsJson(String p_words_json = "[]")
+{
+    if (recognizer == nullptr)
+    {
+        return;
+    }
+
+    vosk_recognizer_set_grm(recognizer, p_words_json.utf8().get_data());
+    return;
 }

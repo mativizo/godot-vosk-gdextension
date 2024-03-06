@@ -9,10 +9,9 @@ namespace godot {
         GDCLASS(VoskVoiceRecognition, Node2D);
 
         private:
-            bool recognizing = false;
             VoskRecognizer *recognizer;
             VoskModel *model;
-            int voskLogLevel = 2;
+            int vosk_log_level = 2;
             double sample_rate = 16000;
 
         protected:
@@ -25,9 +24,9 @@ namespace godot {
             // destructor
             ~VoskVoiceRecognition();
 
-            void init(String model_path);
-            void setLogLevel(int log_level);
-            void voice_recognition();
+            void initVosk(String p_model_path);
+            void setLogLevel(int p_log_level);
+            void setWordsJson(String p_words_json);
 
             void _process(double delta);
     };
