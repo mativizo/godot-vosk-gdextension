@@ -88,5 +88,10 @@ Vosk models can be found on [Vosk website](https://alphacephei.com/vosk/). Check
 -  ✔ Get audio with AudioEffectRecord (see `demo`).
 -  ✔ Mix to mono if needed (see `demo`).
 -  ✔ Pass audio data with `applyWaveform` method.
-- ❌ Get partial text results.
-- ❌ Get full text results.
+-  ✔ Get partial text results.
+-  ✔ Get full text results.
+- ❌ Add clean up code.
+- ❌ Add ability to reload model.
+- ❌ Auto detect models in dir.
+- ❌ Finish the demo project code.
+- ❌ Tests the extension.

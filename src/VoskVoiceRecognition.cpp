@@ -82,3 +82,19 @@ int VoskVoiceRecognition::acceptWaveform(PackedByteArray p_raw_data, int p_lengt
     
     return result;
 }
+
+String VoskVoiceRecognition::getResults() {
+    if (recognizer == nullptr) {
+        return "";
+    }
+
+    return String(vosk_recognizer_result(recognizer));
+}
+
+String VoskVoiceRecognition::getPartialResults() {
+    if (recognizer == nullptr) {
+        return "";
+    }
+
+    return String(vosk_recognizer_partial_result(recognizer));
+}
