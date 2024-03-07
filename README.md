@@ -16,15 +16,12 @@ This repository isn't ready to use in production/prototyping, because is work in
 
 ### Usage
 
-1. First, you need to get the `godot-vosk-gdextension`. To do so, you can navigate to the releases tab or clone and build this repository by yourself.
-2. Add the GDExtension to your project.
-3. Enable Audio Input in `Project Settings -> Audio -> Driver -> Enable Input` (Advanced Settings).
-4. Add `Record` bus by navigating to bottom section of the editor, then click the `Audio` tab and the `Add bus` button.
-5. Under `Record` bus click the `Add Effect` button and select `Record` effect.
-6. Add the `AudioStreamPlayer` node to your scene.
-7. In the inspector (`AudioStreamPlayer`) as Stream select `new AudioStreamMicrophone`.
-8. Enable `AudioStreamPlayer` autoplay and select `Record` as a Bus at the bottom of the inspector.
-9. ...
+1. Add Godot VOSK GDExtension to your project (use releases if available or build by yourself).
+2. Enable Audio Input in `Project Settings -> Audio -> Driver -> Enable Input` (Advanced Settings).
+3. Add `Capture` bus by navigating to bottom section of the editor, then click the `Audio` tab and the `Add bus` button.
+4. Under `Capture` bus click the `Add Effect` button and select `Capture` effect. You can also route `Capture` bus to another muted bus to prevent hearing yourself.
+5. Add the `AudioStreamPlayer` node to your scene. Set `Stream` as `new AudioStreamMicrophone` and set `AutoPlay` property to `true`.
+6. *More info will be added then the demo code will be done.*
 
 
 ### Development
@@ -65,6 +62,12 @@ vvr.applyWaveform(p_raw_data : PackedByteArray, p_length : int) -> int
 # 0 if decoding continues
 # -1 if exception occured
 # -2 if recognizer isn't instantiated
+
+# get partial results from recognizer
+vvr.getPartialResults() -> JSON String
+
+# get full results from recognizer
+vvr.getResults() -> JSON String
 
 ...
 ```
