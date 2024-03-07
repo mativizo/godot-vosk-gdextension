@@ -6,7 +6,7 @@
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vhcbu"]
 bg_color = Color(0, 0, 0, 1)
 
-[sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_x4b5w"]
+[sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_bxiu3"]
 
 [node name="TestScene" type="Control"]
 layout_mode = 3
@@ -43,15 +43,20 @@ theme_override_constants/margin_bottom = 100
 
 [node name="HBoxColumns" type="HBoxContainer" parent="MainMarginContainer"]
 layout_mode = 2
+theme_override_constants/separation = 50
+alignment = 1
 
 [node name="VBoxLeftColumn" type="VBoxContainer" parent="MainMarginContainer/HBoxColumns"]
 layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
 
 [node name="Title" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxLeftColumn"]
 layout_mode = 2
 theme = ExtResource("2_75758")
 theme_override_font_sizes/font_size = 30
 text = "Godot 4.2 Vosk Voice Recognition GDExtension"
+autowrap_mode = 3
 
 [node name="Separator" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxLeftColumn"]
 layout_mode = 2
@@ -61,9 +66,31 @@ theme = ExtResource("2_75758")
 layout_mode = 2
 theme = ExtResource("2_75758")
 text = "Loaded model..."
+autowrap_mode = 3
+
+[node name="Separator2" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxLeftColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+
+[node name="Label4" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxLeftColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+text = "Status:"
+
+[node name="Status" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxLeftColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+text = "Not listening."
+
+[node name="StartListening" type="Button" parent="MainMarginContainer/HBoxColumns/VBoxLeftColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+text = "Start Listening"
 
 [node name="VBoxRightColumn" type="VBoxContainer" parent="MainMarginContainer/HBoxColumns"]
 layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
 
 [node name="Separator" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
 layout_mode = 2
@@ -98,22 +125,7 @@ layout_mode = 2
 theme = ExtResource("2_75758")
 text = "..."
 
-[node name="Label4" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
-layout_mode = 2
-theme = ExtResource("2_75758")
-text = "Status:"
-
-[node name="Status" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
-layout_mode = 2
-theme = ExtResource("2_75758")
-text = "Not listening."
-
-[node name="StartListening" type="Button" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
-layout_mode = 2
-theme = ExtResource("2_75758")
-text = "Start Listening"
-
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-stream = SubResource("AudioStreamMicrophone_x4b5w")
+stream = SubResource("AudioStreamMicrophone_bxiu3")
 autoplay = true
-bus = &"Record"
+bus = &"Capture"

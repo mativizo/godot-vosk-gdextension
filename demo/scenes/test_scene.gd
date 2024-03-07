@@ -5,22 +5,35 @@ extends Control
 
 # ui elements
 @onready var loaded_model_label : Label = $MainMarginContainer/HBoxColumns/VBoxLeftColumn/LoadedModel
-@onready var listening_button : Button = $MainMarginContainer/HBoxColumns/VBoxRightColumn/StartListening
+@onready var listening_button : Button = $MainMarginContainer/HBoxColumns/VBoxLeftColumn/StartListening
+@onready var status_label : Label = $MainMarginContainer/HBoxColumns/VBoxLeftColumn/Status
 
-var record_bus_name : String = "Record"
+@onready var partial_results_label : Label = $MainMarginContainer/HBoxColumns/VBoxRightColumn/PartialText
+@onready var results_label : Label = $MainMarginContainer/HBoxColumns/VBoxRightColumn/FullText
+
+var capture_bus_name : String = "Record"
 var is_listening : bool = false
-var timeout : int = 12000
-var record_effect : AudioEffectRecord
-
-
-
+var is_ready : bool = false
+var capture_effect : AudioEffectCapture
 
 func _ready():
+	listening_button.disabled = true
+	listening_button.pressed.connect(_on_listening_button)
+	
+	var input_devices = AudioServer.get_input_device_list()
+	var current_input_device = AudioServer.input_device
+	print(input_devices)
+	print("Current: "+str(current_input_device))
+	AudioServer.set_input_device(input_devices[input_devices.size() - 1])
+	print(AudioServer.input_device)
+	
 	# get record bus
-	var record_idx = AudioServer.get_bus_index("Record")
+	var capture_idx = AudioServer.get_bus_index("Capture")
+	
+	print("Capture idx %s" % [capture_idx])
 	
 	# get effect from bus
-	record_effect = AudioServer.get_bus_effect(record_idx, 0)
+	capture_effect = AudioServer.get_bus_effect(capture_idx, 0)
 	
 	
 	vosk_voice_recognition.vosk_ready_signal.connect(_on_vosk_ready)
@@ -30,9 +43,19 @@ func _ready():
 	vosk_voice_recognition.setLogLevel(2)
 	vosk_voice_recognition.initVosk("bin/models/vosk-model-small-en-us-0.15")
 	
-func _on_vosk_ready(is_ready : bool, error_message : String):
-	if is_ready: print("Vosk is ready. Message: " + str(error_message))
-	else: print("Vosk not ready. Message: " + str(error_message))
+func _on_vosk_ready(_is_ready : bool, error_message : String):
+	if not _is_ready:
+		is_ready = false
+		print("Vosk not ready. Message: " + str(error_message))
+		status_label.text = "Vosk not ready, "+str(error_message)
+		listening_button.disabled = true
+		return
+		
+	print("Vosk is ready. Message: " + str(error_message))
+	status_label.text = "Vosk is ready, "+str(error_message)
+	is_ready = true
+	listening_button.disabled = false
+	
 	
 func _on_vosk_model_loaded(model_path : String):
 	loaded_model_label.text = "Loaded model: "+str(model_path)
@@ -47,41 +70,43 @@ func _on_vosk_recognizer_ready(is_ready : bool, error_message : String):
 	# Start recognizing process
 		
 func _microphone_processing():
-	if not record_effect: return
+	if not capture_effect:
+		print("Capture effect not ready, returning ")
+		return
 	
-	# recording...
-	if record_effect.is_recording_active():
-		var voice_sample : AudioStreamWAV = record_effect.get_recording()
-		
-		if not voice_sample: return
-		
-		var data : Array = []
-		if voice_sample.stereo: data = _stereo_to_mono(voice_sample.data)
-		else: data = voice_sample.data
-		
-		var apply_results = vosk_voice_recognition.applyWaveform(data, data.size())
-		if apply_results == 1: print("silence occured")
-		elif apply_results == 0: print("decoding continues")
-		elif apply_results == -1: print("exception occured")
-		elif apply_results == -2: print("you must call initVosk first")
+	var buffer_length_frames = capture_effect.get_buffer_length_frames()
+	print("Buffer length: "+str(buffer_length_frames))
+	if not capture_effect.can_get_buffer(buffer_length_frames / 2): return
+	
+	var data : PackedVector2Array = capture_effect.get_buffer(capture_effect.get_frames_available())
+	var result = vosk_voice_recognition.acceptWaveform(data, 96000)
+	
+	if result == 1:
+		var results = JSON.parse_string(vosk_voice_recognition.getResults())
+		if results and results.has("text") and results.text != "":
+			results_label.text = results.text
+	elif result == 0:
+		print("decoding continues")
+		var partial_results = JSON.parse_string(vosk_voice_recognition.getPartialResults())
+		if partial_results and partial_results.has("text") and partial_results.text != "":
+			partial_results_label.text = partial_results.text
+	elif result == -1: print("exception occured")
+	elif result == -2: print("you must call initVosk first")
 		
 
-func _stereo_to_mono(input_data : PackedByteArray) -> PackedByteArray:
-	# check if real stereo
-	if input_data.size() % 4 != 0: return []
-	var output_data : PackedByteArray = []
-	var output_index : int = 0
-	
-	# mix channels
-	for n in range(0, input_data.size(), 4):
-		var left_channel : int = input_data[n] + (input_data[n + 1] << 8)
-		var right_channel: int = input_data[n + 2] + (input_data[n + 3] << 8)
-		var mixed_channels: int = (left_channel + right_channel) / 2
-		output_data.append(mixed_channels)
-	return output_data
-			
-		
-		
-		
-		
-		
+func _on_listening_button():
+	if is_listening:
+		is_listening = false
+		status_label.text = "Listening stopped"
+	else:
+		is_listening = true
+		status_label.text = "Listening..."
+
+var every_x_frame = 0
+var frame = 0
+func _process(_delta : float):
+	frame += 1
+	if is_ready and is_listening:
+		if every_x_frame <= frame:
+			_microphone_processing()
+			frame = 0
