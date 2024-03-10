@@ -254,6 +254,5 @@ layout_mode = 2
 text = "128"
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-bus = &"Record"
 
 [node name="ASRPlay" type="AudioStreamPlayer" parent="."]

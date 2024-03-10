@@ -21,20 +21,20 @@ int audioCallback(const void *inputBuffer, void *outputBuffer, unsigned long fra
     if (vvr->is_vosk_listening) {
         // Convert input buffer to the correct format
         const float *audioData = static_cast<const float*>(inputBuffer);
-        const short *audioData_s = static_cast<const short*>(inputBuffer);
+        // const short *audioData_s = static_cast<const short*>(inputBuffer);
 
         
-        short *convertedData = new short[framesPerBuffer];
-        int16_t *convertedData_s = new int16_t[framesPerBuffer];
-        short max_data = 0;
-        for (unsigned long i = 0; i < framesPerBuffer; ++i) {
-            convertedData[i] = static_cast<short>(audioData[i] * 32767.0f);
-            convertedData_s[i] = static_cast<int16_t>(audioData[i] * 32767.0f);
+        // short *convertedData = new short[framesPerBuffer];
+        // int16_t *convertedData_s = new int16_t[framesPerBuffer];
+        // short max_data = 0;
+        // for (unsigned long i = 0; i < framesPerBuffer; ++i) {
+        //     convertedData[i] = static_cast<short>(audioData[i] * 32767.0f);
+        //     convertedData_s[i] = static_cast<int16_t>(audioData[i] * 32767.0f);
 
-            if (std::abs(convertedData[i]) > max_data) {
-                max_data = std::abs(convertedData[i]);
-            }
-        }
+        //     if (std::abs(convertedData[i]) > max_data) {
+        //         max_data = std::abs(convertedData[i]);
+        //     }
+        // }
 
         vvr->accumulate_audio_data(audioData, framesPerBuffer);
 
@@ -42,7 +42,7 @@ int audioCallback(const void *inputBuffer, void *outputBuffer, unsigned long fra
         vvr->status = vosk_recognizer_accept_waveform_s(vvr->recognizer, reinterpret_cast<const int16_t *>(audioData), framesPerBuffer * 2);
         
 
-        delete[] convertedData;
+        delete[] audioData;
     }
 
     return paContinue;
@@ -72,7 +72,10 @@ VoskVoiceRecognition::VoskVoiceRecognition() {
     }
 }
 
-VoskVoiceRecognition::~VoskVoiceRecognition() {}
+VoskVoiceRecognition::~VoskVoiceRecognition() {
+    cleanup();
+    godot::UtilityFunctions::print("VoskVoiceRecognition destroyed.");
+}
 
 
 

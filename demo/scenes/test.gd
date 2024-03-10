@@ -14,19 +14,21 @@ func _ready():
 	listen_button.pressed.connect(_on_listen_button)
 	
 
-var check_for_results_every = 5
+var check_for_results_every = 10
+
 var elapsed_time = 0
 func _process(_delta: float):
 	if not is_listening: return
 	
+		
 	elapsed_time += _delta
 	if elapsed_time > check_for_results_every:
 		elapsed_time = 0
 		
 		var partial = vosk.get_partial()
-		var final = vosk.get_final()
-		
 		partial_rich.text = partial + "\n" + partial_rich.text
+		
+		var final = vosk.get_final()
 		final_rich.text = final + "\n" + final_rich.text
 	
 	#vosk.save_accumulated_audio()
@@ -42,7 +44,7 @@ func _on_listen_button():
 			get_parent().add_child(vosk)
 			var model_path = model_path.text
 			if vosk.initialize(model_path):
-				vosk.set_size_in_ms(10000)
+				vosk.set_size_in_ms(1024*4)
 				vosk.start()
 			
 	else:
