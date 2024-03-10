@@ -75,7 +75,12 @@ vvr.getResults() -> JSON String
 
 ### Dependencies
 
+##### VOSK (Voice Recognition)
 This project is created around [Vosk](https://alphacephei.com/vosk/). Vosk is a great speech recognition toolkit with support for 20+ languages. The best feature of Vosk is it's working offline..
+
+##### PortAudio
+To capture and manipulate the audio data I've used `PortAudio`.
+Sadly, the `AudioEffectRecord` in Godot doesn't work for me (empty data) and the `AudioEffectCapture` was too hard to work with. All the logic was movent into C++ class.
 
 ### Models
 
