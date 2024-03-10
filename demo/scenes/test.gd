@@ -10,27 +10,15 @@ var vosk
 
 
 var is_listening = false
+var elapsed_time = 0
+
 func _ready():
 	listen_button.pressed.connect(_on_listen_button)
 	
 
-var check_for_results_every = 10
 
-var elapsed_time = 0
 func _process(_delta: float):
 	if not is_listening: return
-	
-		
-	elapsed_time += _delta
-	if elapsed_time > check_for_results_every:
-		elapsed_time = 0
-		
-		var partial = vosk.get_partial()
-		partial_rich.text = partial + "\n" + partial_rich.text
-		
-		var final = vosk.get_final()
-		final_rich.text = final + "\n" + final_rich.text
-	
 	#vosk.save_accumulated_audio()
 
 
@@ -41,10 +29,10 @@ func _on_listen_button():
 		listen_button.text = "STOP LISTENING"
 		if not vosk:
 			vosk = VoskVoiceRecognition.new()
-			get_parent().add_child(vosk)
+			add_child(vosk)
 			var model_path = model_path.text
 			if vosk.initialize(model_path):
-				vosk.set_size_in_ms(1024*4)
+				vosk.set_size_in_ms(1024)
 				vosk.start()
 			
 	else:
@@ -53,3 +41,10 @@ func _on_listen_button():
 			vosk.stop()
 			vosk.queue_free()
 	
+
+func _on_partial_result_signal(partial_text : String):
+	partial_rich.text += "\n" + partial_text
+	
+func _on_final_result_signal(final_text : String):
+	final_rich.text += "\n" + final_text
+

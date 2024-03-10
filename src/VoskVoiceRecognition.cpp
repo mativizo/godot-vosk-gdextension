@@ -40,9 +40,16 @@ int audioCallback(const void *inputBuffer, void *outputBuffer, unsigned long fra
 
         // Process audio using Vosk
         vvr->status = vosk_recognizer_accept_waveform_s(vvr->recognizer, reinterpret_cast<const int16_t *>(audioData), framesPerBuffer * 2);
-        
 
-        delete[] audioData;
+        if (vvr->status == 0) {
+            // get partial
+            godot::String partialResult = vosk_recognizer_partial_result(vvr->recognizer);
+            vvr->partial_result_signal(partialResult);
+        } else if (vvr->status == 1) {
+            // get final
+            godot::String finalResult = vosk_recognizer_result(vvr->recognizer);
+            vvr->final_result_signal(finalResult);
+        }    
     }
 
     return paContinue;
@@ -56,14 +63,13 @@ void VoskVoiceRecognition::_bind_methods() {
     ClassDB::bind_method(D_METHOD("save_accumulated_audio"), &VoskVoiceRecognition::save_accumulated_audio);
     ClassDB::bind_method(D_METHOD("get_input_devices"), &VoskVoiceRecognition::get_input_devices);
     ClassDB::bind_method(D_METHOD("set_input_device", "device_index"), &VoskVoiceRecognition::set_input_device);
-    ClassDB::bind_method(D_METHOD("get_partial"), &VoskVoiceRecognition::get_partial);
-    ClassDB::bind_method(D_METHOD("get_final"), &VoskVoiceRecognition::get_final);
     ClassDB::bind_method(D_METHOD("get_status"), &VoskVoiceRecognition::get_status);
     ClassDB::bind_method(D_METHOD("is_listening"), &VoskVoiceRecognition::is_listening);
     ClassDB::bind_method(D_METHOD("set_partial_words", "value"), &VoskVoiceRecognition::set_partial_words);
     ClassDB::bind_method(D_METHOD("set_words", "value"), &VoskVoiceRecognition::set_words);
 
-    //ADD_SIGNAL(MethodInfo("voice_status_signal", PropertyInfo(Variant::INT, "status"), PropertyInfo(Variant::STRING, "error_message")));
+    ADD_SIGNAL(MethodInfo("final_result_signal", PropertyInfo(Variant::STRING, "final_result")));
+    ADD_SIGNAL(MethodInfo("partial_result_signal", PropertyInfo(Variant::STRING, "partial_result")));
 }
 
 VoskVoiceRecognition::VoskVoiceRecognition() {
@@ -302,16 +308,12 @@ bool VoskVoiceRecognition::set_input_device(int device_index) {
 }
 
 
-godot::String VoskVoiceRecognition::get_partial() {
-    // Retrieve partial result
-    godot::String partialResult = vosk_recognizer_partial_result(recognizer);
-    return partialResult;
+void VoskVoiceRecognition::partial_result_signal(godot::String result) {
+    emit_signal("partial_result_signal", result);
 }
 
-godot::String VoskVoiceRecognition::get_final() {
-    // Retrieve partial result
-    godot::String finalResult = vosk_recognizer_final_result(recognizer);
-    return finalResult;
+void VoskVoiceRecognition::final_result_signal(godot::String result) {
+    emit_signal("final_result_signal", result);
 }
 
 int VoskVoiceRecognition::get_status() {

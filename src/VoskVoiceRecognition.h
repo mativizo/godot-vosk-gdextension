@@ -64,12 +64,12 @@ namespace godot {
             void write_word(std::ofstream& out, uint32_t word, int num_bytes);
             godot::Array get_input_devices();
             bool set_input_device(int device_index);
-            godot::String get_partial();
-            godot::String get_final();
             int get_status();
             bool is_listening();
             void set_partial_words(bool value);
             void set_words(bool value);
+            void partial_result_signal(godot::String result);
+            void final_result_signal(godot::String result);
     };
 }
 #endif
