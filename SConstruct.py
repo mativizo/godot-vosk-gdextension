@@ -4,8 +4,9 @@ import sys
 env = SConscript("godot-cpp/SConstruct")
 
 env.Append(CPPPATH=["src/"])
-env.Append(LIBPATH=["src/vosk/"])
-env.Append(LIBS=["libvosk"])
+env.Append(LIBPATH=["src/vosk/", "src/portaudio/lib/x64/Release"])
+env.Append(LIBS=["libvosk", "portaudio_x64"])
+
 
 sources = Glob("src/*.cpp")
 

@@ -1,0 +1,138 @@
+[gd_scene load_steps=4 format=3 uid="uid://b77o5sftb31wy"]
+
+[ext_resource type="Script" path="res://scenes/test_scene.gd" id="1_rnkit"]
+[ext_resource type="Theme" uid="uid://3q7c2jbud5kx" path="res://new_theme.tres" id="2_75758"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vhcbu"]
+bg_color = Color(0, 0, 0, 1)
+
+[node name="TestScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_rnkit")
+
+[node name="VoskVoiceRecognition" type="VoskVoiceRecognition" parent="."]
+process_mode = 0
+
+[node name="Background" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_vhcbu")
+
+[node name="MainMarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 100
+theme_override_constants/margin_top = 100
+theme_override_constants/margin_right = 100
+theme_override_constants/margin_bottom = 100
+
+[node name="HBoxColumns" type="HBoxContainer" parent="MainMarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 50
+alignment = 1
+
+[node name="VBoxLeftColumn" type="VBoxContainer" parent="MainMarginContainer/HBoxColumns"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Title" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxLeftColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+theme_override_font_sizes/font_size = 30
+text = "Godot 4.2 Vosk Voice Recognition GDExtension"
+autowrap_mode = 3
+
+[node name="Separator" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxLeftColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+
+[node name="LoadedModel" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxLeftColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+text = "Loaded model..."
+autowrap_mode = 3
+
+[node name="Separator2" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxLeftColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+
+[node name="Label4" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxLeftColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+text = "Status:"
+
+[node name="Status" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxLeftColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+text = "Not listening."
+
+[node name="StartListening" type="Button" parent="MainMarginContainer/HBoxColumns/VBoxLeftColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+text = "Start Listening"
+
+[node name="VBoxRightColumn" type="VBoxContainer" parent="MainMarginContainer/HBoxColumns"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Separator" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+
+[node name="Separator2" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+
+[node name="Label" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+text = "Recognition Results:"
+
+[node name="Label2" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+text = "Partial:"
+
+[node name="PartialText" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+theme_override_font_sizes/font_size = 10
+text = "..."
+autowrap_mode = 3
+
+[node name="Label3" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+text = "Full text:"
+
+[node name="FullText" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
+layout_mode = 2
+theme = ExtResource("2_75758")
+theme_override_font_sizes/font_size = 10
+text = "..."
+autowrap_mode = 3
+
+[node name="samplesize" type="LineEdit" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
+layout_mode = 2
+text = "128"
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+bus = &"Record"
+
+[node name="ASRPlay" type="AudioStreamPlayer" parent="."]
+pitch_scale = 4.0

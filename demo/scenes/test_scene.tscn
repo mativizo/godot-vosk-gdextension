@@ -1,12 +1,132 @@
-[gd_scene load_steps=5 format=3 uid="uid://b77o5sftb31wy"]
+[gd_scene load_steps=4 format=3 uid="uid://b4xphe36mxmok"]
 
-[ext_resource type="Script" path="res://scenes/test_scene.gd" id="1_rnkit"]
 [ext_resource type="Theme" uid="uid://3q7c2jbud5kx" path="res://new_theme.tres" id="2_75758"]
+
+[sub_resource type="GDScript" id="GDScript_kumyj"]
+script/source = "extends Control
+
+# vosk voice recognition node
+@onready var vosk_voice_recognition : VoskVoiceRecognition = $VoskVoiceRecognition
+
+@onready var samplesize_edit : LineEdit = $MainMarginContainer/HBoxColumns/VBoxRightColumn/samplesize
+
+@onready var asr_play := $ASRPlay
+@onready var audio_stream_mic : AudioStreamPlayer = $AudioStreamPlayer
+
+# ui elements
+@onready var loaded_model_label : Label = $MainMarginContainer/HBoxColumns/VBoxLeftColumn/LoadedModel
+@onready var listening_button : Button = $MainMarginContainer/HBoxColumns/VBoxLeftColumn/StartListening
+@onready var status_label : Label = $MainMarginContainer/HBoxColumns/VBoxLeftColumn/Status
+
+@onready var partial_results_label : Label = $MainMarginContainer/HBoxColumns/VBoxRightColumn/PartialText
+@onready var results_label : Label = $MainMarginContainer/HBoxColumns/VBoxRightColumn/FullText
+
+
+
+var audio_mix: float = ProjectSettings.get_setting(\"audio/driver/mix_rate\")
+var capture_bus_name : String = \"Record\"
+var is_listening : bool = false
+var is_ready : bool = false
+var capture_effect : AudioEffectCapture
+func _ready():
+	audio_stream_mic.stream = AudioStreamMicrophone.new()
+	audio_stream_mic.play()
+	
+	
+	reset_audio_stream()
+	var input_devices = AudioServer.get_input_device_list()
+	var current_input_device = AudioServer.input_device
+	AudioServer.set_input_device(input_devices[input_devices.size() - 1])
+	var capture_idx = AudioServer.get_bus_index(\"Record\")
+	capture_effect = AudioServer.get_bus_effect(capture_idx, 0)
+	
+	
+func _on_vosk_recognizer_ready(_is_ready : bool, error_message : String):
+	if not _is_ready:
+		print(\"Reconigzer isn't ready. Message: \" + str(error_message))
+		return
+		
+	print(\"Voice recognizer is ready! Message: \"+str(error_message))
+	
+	is_ready = _is_ready
+
+var get_data_if = 0.03
+var sum = 0
+func _microphone_processing(_delta : float):
+	if not capture_effect or not audio_stream_mic.playing: 	return
+	
+	sum += _delta
+	if sum < get_data_if: return
+	sum = 0
+	
+		
+	var data : PackedVector2Array = capture_effect.get_buffer(capture_effect.get_frames_available())
+	##var prepared_data : PackedByteArray = vosk_voice_recognition.convert32bitFloatTo16bitInt(data)
+	#var prepared_data : PackedByteArray = data.to_byte_array()
+	var prepared_data : PackedFloat32Array = convertZ(data)
+	#var prepared_data : PackedByteArray = convert_to_mono_16bit_pcm3(data)
+	#var prepared_data : PackedByteArray = vosk_voice_recognition.convert32bitFloatTo16bitInt(data)
+	
+	#var prepared_data : PackedByteArray = data.to_byte_array()
+	capture_effect.clear_buffer()
+	
+	var ax : PackedByteArray = PackedByteArray()
+	ax = audio_sw.data
+	ax.append_array(prepared_data.to_byte_array())
+	audio_sw.data = ax
+	
+
+
+var audio_sw : AudioStreamWAV = AudioStreamWAV.new()
+var file_name_iterator = 0
+
+var is_active = false
+
+func _process(_delta):
+	if Input.is_action_just_pressed(\"ui_accept\"):
+		is_active = !is_active
+	
+		
+	if is_active:
+		if asr_play.playing:
+			asr_play.stop()
+		if not audio_stream_mic.playing:
+			audio_stream_mic.play()
+	else:
+		if audio_stream_mic.playing:
+			audio_stream_mic.stop()
+			audio_sw.save_to_wav(\"THETEST_\" +str(file_name_iterator) +\".wav\")
+			asr_play.stream = audio_sw
+			asr_play.play()
+			reset_audio_stream()
+
+			file_name_iterator += 1
+			#capture_effect.clear_buffer()
+	_microphone_processing(_delta)
+	
+func convertZ(stereoData: PackedVector2Array):
+	var data = PackedFloat32Array()
+	data.resize(stereoData.size())
+	var maxAmplitude := 0.0
+
+	for i in range(stereoData.size()):
+		var value = (stereoData[i].x + stereoData[i].y) / 2
+		maxAmplitude = max(value, maxAmplitude)
+		data[i] = value
+	
+	return data
+
+func reset_audio_stream():
+	audio_sw = AudioStreamWAV.new()
+	
+	audio_sw.set_format(AudioStreamWAV.FORMAT_16_BITS)
+	audio_sw.set_mix_rate(int(ProjectSettings.get_setting(\"audio/driver/mix_rate\")))
+	audio_sw.set_stereo(false)
+	
+"
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vhcbu"]
 bg_color = Color(0, 0, 0, 1)
-
-[sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_bxiu3"]
 
 [node name="TestScene" type="Control"]
 layout_mode = 3
@@ -15,7 +135,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_rnkit")
+script = SubResource("GDScript_kumyj")
 
 [node name="VoskVoiceRecognition" type="VoskVoiceRecognition" parent="."]
 process_mode = 0
@@ -113,7 +233,9 @@ text = "Partial:"
 [node name="PartialText" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
 layout_mode = 2
 theme = ExtResource("2_75758")
+theme_override_font_sizes/font_size = 10
 text = "..."
+autowrap_mode = 3
 
 [node name="Label3" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
 layout_mode = 2
@@ -123,9 +245,15 @@ text = "Full text:"
 [node name="FullText" type="Label" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
 layout_mode = 2
 theme = ExtResource("2_75758")
+theme_override_font_sizes/font_size = 10
 text = "..."
+autowrap_mode = 3
+
+[node name="samplesize" type="LineEdit" parent="MainMarginContainer/HBoxColumns/VBoxRightColumn"]
+layout_mode = 2
+text = "128"
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-stream = SubResource("AudioStreamMicrophone_bxiu3")
-autoplay = true
-bus = &"Capture"
+bus = &"Record"
+
+[node name="ASRPlay" type="AudioStreamPlayer" parent="."]
