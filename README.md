@@ -12,6 +12,15 @@
 
 
 ### State
+Build can be used in debug projects.
+
+**Tested with**:
+
+| Godot Engine | OS |
+| ------------ | -- |
+| 4.3 dev4 | Windows 10 |
+
+
 This repository isn't ready to use in production/prototyping, because is work in progress. When extension will be ready I'll update this README.md accordingly.
 
 ### Usage
