@@ -10,6 +10,8 @@
 #include <string>
 #include <fstream>
 #include <thread>
+#include <mutex>
+
 
 using namespace godot;
 
@@ -160,12 +162,14 @@ void VoskVoiceRecognition::cleanup()
     {
         vosk_recognizer_free(recognizer);
         p("Vosk Info", "Recognizer cleaned up", "cleanup()");
+        recognizer = nullptr;
     }
 
     if (model)
     {
         vosk_model_free(model);
         p("Vosk Info", "Model cleaned up", "cleanup()");
+        model = nullptr;
     }
 
     Pa_Terminate();
@@ -277,8 +281,14 @@ void VoskVoiceRecognition::set_size_in_ms(int miliseconds)
 
 void VoskVoiceRecognition::accumulate_audio_data(const float *data, unsigned long num_samples)
 {
+    // accumulated_audio_data.insert(accumulated_audio_data.end(), data, data + num_samples);
+
+    size_t newSize = accumulated_audio_data.size() + num_samples;
+    accumulated_audio_data.reserve(newSize);
     accumulated_audio_data.insert(accumulated_audio_data.end(), data, data + num_samples);
+
 }
+
 
 bool VoskVoiceRecognition::save_accumulated_audio()
 {
