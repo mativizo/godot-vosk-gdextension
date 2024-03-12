@@ -64,6 +64,9 @@ layout_mode = 2
 theme = ExtResource("2_a2bbp")
 text = "START LISTENING"
 
+[node name="InputDeviceOption" type="OptionButton" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 50

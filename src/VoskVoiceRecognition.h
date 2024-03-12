@@ -6,6 +6,7 @@
 #include <godot_cpp/godot.hpp>
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
+#include <string>
 
 #include <string>
 #include <iostream>
@@ -36,16 +37,19 @@ namespace godot {
             static void _bind_methods();
 
         public:
+            
             std::vector<float> accumulated_audio_data;
+            int selected_input_device_id = -1;
             bool is_accumulating_audio = false;
             bool is_vosk_listening = false;
+            bool logs_enabled = false;
             bool initialized = false;
+            bool do_accumulate_audio_data = false;
             int status = -2;
             VoskModel *model = nullptr;
             VoskRecognizer *recognizer = nullptr;
             std::thread recognition_thread; // Thread for voice recognition
             int buffer_ms = 100;
-
             
             VoskVoiceRecognition();
             ~VoskVoiceRecognition();
@@ -63,13 +67,22 @@ namespace godot {
             bool save_accumulated_audio();
             void write_word(std::ofstream& out, uint32_t word, int num_bytes);
             godot::Array get_input_devices();
+            godot::Dictionary get_input_device_info_by_id(int device_index);
             bool set_input_device(int device_index);
             int get_status();
             bool is_listening();
             void set_partial_words(bool value);
             void set_words(bool value);
-            void partial_result_signal(godot::String result);
-            void final_result_signal(godot::String result);
+            
+            void p(godot::String type, godot::String message, godot::String source);
+            godot::Dictionary get_current_input_device_info();
+            void set_logs(bool logs = false);
+            void set_accumulate_audio_data(bool enable);
+            bool switch_model_and_init(godot::String model_path);
+
+            godot::String get_final_result();
+            godot::String get_partial_result();
+            void initialize_portaudio();
     };
 }
 #endif
