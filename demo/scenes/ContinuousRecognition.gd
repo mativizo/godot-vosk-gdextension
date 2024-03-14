@@ -47,10 +47,8 @@ func _process(_delta: float):
 		status_label.text = "Status: " +str(status)
 		
 		if status == 1:
-			var partial_result = vosk.get_partial_result()
-			if partial_result != "": update_partial_result(partial_result)
-			var final_result = vosk.get_final_result()
-			if final_result != "": update_final_result(final_result)
+			update_partial_result(vosk.get_partial_result())
+			#update_final_result(vosk.get_final_result())
 	
 		
 	
@@ -73,31 +71,13 @@ func _on_listen_button():
 	
 
 
-func update_partial_result(partial_text : String):
-	var err = json.parse(partial_text)
-	if err == OK:
-		var data = json.data
-		if typeof(data) == TYPE_DICTIONARY:
-			if "text" in data and data.text != "":
-				partial_rich.text = partial_text + "\n" + partial_rich.text
-			else:
-				partial_rich.text = partial_text + "\nCan't parse json."
-				
-	else:
-		final_rich.text = final_rich.text + "\nError occured."
-
-func update_final_result(final_text : String):
-	var err = json.parse(final_text)
-	if err == OK:
-		var data = json.data
-		if typeof(data) == TYPE_DICTIONARY:
-			if "text" in data and data.text != "":
-				final_rich.text = final_text + "\n" + final_rich.text
-			else:
-				final_rich.text = final_text + "\nCan't parse json."
-				
-	else:
-		final_rich.text = final_rich.text + "\nError occured."
+func update_partial_result(partial_text : Dictionary):
+	if "partial" in partial_text and partial_text.partial != "":
+		partial_rich.text = partial_text.partial + "\n" + partial_rich.text
+	
+func update_final_result(final_text : Dictionary):
+	if "text" in final_text and final_text.text != "":
+		final_rich.text = final_text.text + "\n" + final_rich.text
 	
 
 func _on_switch_device(opt_id : int):

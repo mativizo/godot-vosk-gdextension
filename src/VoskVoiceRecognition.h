@@ -89,7 +89,8 @@ namespace godot {
             void accumulate_audio_data(const float* data, unsigned long num_samples);
             bool save_accumulated_audio();
             void write_word(std::ofstream& out, uint32_t word, int num_bytes);           
-            godot::Dictionary convert_to_dict(VoskResult result);
+            godot::Dictionary convert_to_dict(std::string output);
+            
     };
 }
 #endif

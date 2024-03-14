@@ -518,24 +518,30 @@ void VoskVoiceRecognition::set_accumulate_audio_data(bool enable)
 
 godot::Dictionary VoskVoiceRecognition::get_partial_result()
 {
+    godot::Dictionary dict = {};
     if (is_vosk_listening) {
-        godot::Dictionary dict = convert_to_dict(vosk_recognizer_partial_result(recognizer));
+        std::string res = (std::string) vosk_recognizer_partial_result(recognizer);
+        dict = convert_to_dict(res);
         return dict;
+        // dict["test"] = res.c_str();
+        // return dict;
     }
 
-    return "";
+    return dict;
 }
 
 godot::Dictionary VoskVoiceRecognition::get_final_result()
 {
+    godot::Dictionary dict = {};
     if (is_vosk_listening) {
-        godot::Dictionary dict = convert_to_dict(vosk_recognizer_final_result(recognizer));
+        std::string res = (std::string) vosk_recognizer_result(recognizer);
+        godot::Dictionary dict = convert_to_dict(res);
         return dict;
     }
-    return "";
+    return dict;
 }
 
-godot::Dictionary VoskVoiceRecognition::convert_to_dict(const std::string& output) {
+godot::Dictionary VoskVoiceRecognition::convert_to_dict(std::string output) {
     godot::Dictionary result;
 
     std::string cleaned_output = output;
@@ -546,7 +552,6 @@ godot::Dictionary VoskVoiceRecognition::convert_to_dict(const std::string& outpu
         cleaned_output.replace(pos, 2, "\n");
     }
 
-    // Assuming the input string format is JSON-like
     size_t start_pos = 0;
     while (true) {
         // Find the next key-value pair
@@ -555,8 +560,8 @@ godot::Dictionary VoskVoiceRecognition::convert_to_dict(const std::string& outpu
         
         size_t end_key_pos = cleaned_output.find('"', key_pos + 1);
         if (end_key_pos == std::string::npos) break; // Invalid format
-        
-        std::string key = cleaned_output.substr(key_pos + 1, end_key_pos - key_pos - 1);
+
+        godot::String key = cleaned_output.substr(key_pos + 1, end_key_pos - key_pos - 1).c_str();
         
         // Find the value
         size_t value_pos = cleaned_output.find(':', end_key_pos);
@@ -572,14 +577,17 @@ godot::Dictionary VoskVoiceRecognition::convert_to_dict(const std::string& outpu
             value_str = cleaned_output.substr(value_pos + 2, end_quote_pos - value_pos - 2);
             value_end_pos = end_quote_pos;
         } else {
-            // Numeric value
+            // Numeric or boolean value
             size_t end_value_pos = cleaned_output.find_first_not_of("0123456789.-+eE", value_pos + 1);
             value_str = cleaned_output.substr(value_pos + 1, end_value_pos - value_pos - 1);
             value_end_pos = end_value_pos;
         }
 
         // Convert the value to Godot Variant type
-        godot::Variant value = godot::Variant::parse(value_str.c_str());
+        // print to console out
+        
+
+        godot::String value = (godot::String) value_str.c_str();
         result[key] = value;
 
         // Move start_pos to the next key-value pair
@@ -590,4 +598,3 @@ godot::Dictionary VoskVoiceRecognition::convert_to_dict(const std::string& outpu
 
     return result;
 }
-
