@@ -50,39 +50,46 @@ namespace godot {
             VoskRecognizer *recognizer = nullptr;
             std::thread recognition_thread; // Thread for voice recognition
             int buffer_ms = 100;
+            PaStream *stream;
             
+            // Constructor
             VoskVoiceRecognition();
             ~VoskVoiceRecognition();
-           
-            void cleanup();
-
-
+                       
+            // Voice Recognition
             bool initialize(godot::String p_model_path);
-            bool start();
-            void recognize_in_thread();
+            bool switch_model_and_init(godot::String model_path);            
+            godot::Dictionary get_final_result();
+            godot::Dictionary get_partial_result();
+            void initialize_portaudio();
             void stop();
-            void set_size_in_ms(int miliseconds);
-
-            void accumulate_audio_data(const float* data, unsigned long num_samples);
-            bool save_accumulated_audio();
-            void write_word(std::ofstream& out, uint32_t word, int num_bytes);
-            godot::Array get_input_devices();
-            godot::Dictionary get_input_device_info_by_id(int device_index);
-            bool set_input_device(int device_index);
-            int get_status();
-            bool is_listening();
-            void set_partial_words(bool value);
-            void set_words(bool value);
+            void recognize_in_thread();
+            bool start();
             
-            void p(godot::String type, godot::String message, godot::String source);
-            godot::Dictionary get_current_input_device_info();
+            // Status
+            bool is_listening();
+            int get_status();
+            
+            // Config
+            void set_size_in_ms(int miliseconds);
             void set_logs(bool logs = false);
             void set_accumulate_audio_data(bool enable);
-            bool switch_model_and_init(godot::String model_path);
+            void set_partial_words(bool value);
+            void set_words(bool value);
 
-            godot::String get_final_result();
-            godot::String get_partial_result();
-            void initialize_portaudio();
+            // Input devices
+            godot::Dictionary get_current_input_device_info();
+            bool set_input_device(int device_index);
+            godot::Array get_input_devices();
+            godot::Dictionary get_input_device_info_by_id(int device_index);
+
+            // Utils
+            void cleanup();
+            void p(godot::String type, godot::String message, godot::String source);
+            void accumulate_audio_data(const float* data, unsigned long num_samples);
+            bool save_accumulated_audio();
+            void write_word(std::ofstream& out, uint32_t word, int num_bytes);           
+            godot::Dictionary convert_to_dict(VoskResult result);
     };
 }
 #endif

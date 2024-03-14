@@ -21,6 +21,8 @@ int audioCallback(const void *inputBuffer, void *outputBuffer, unsigned long fra
 {
     VoskVoiceRecognition *vvr = static_cast<VoskVoiceRecognition *>(userData);
 
+    vvr->status = -2;
+
     if (vvr->is_vosk_listening)
     {
         // Convert input buffer to the correct format
@@ -61,6 +63,7 @@ void VoskVoiceRecognition::_bind_methods()
     ClassDB::bind_method(D_METHOD("get_input_device_info_by_id", "input_device_id"), &VoskVoiceRecognition::get_input_device_info_by_id);
     ClassDB::bind_method(D_METHOD("get_input_devices"), &VoskVoiceRecognition::get_input_devices);
     ClassDB::bind_method(D_METHOD("set_input_device", "device_index"), &VoskVoiceRecognition::set_input_device);
+    ClassDB::bind_method(D_METHOD("get_current_input_device_info"), &VoskVoiceRecognition::get_current_input_device_info);
 
     // cleaning up
     ClassDB::bind_method(D_METHOD("cleanup"), &VoskVoiceRecognition::cleanup);
@@ -196,6 +199,39 @@ bool VoskVoiceRecognition::start()
     {
         p("Vosk Info", "Starting recognition", "start()");
         is_vosk_listening = true;
+        // Open audio stream
+        PaStreamParameters *inputParameters = new PaStreamParameters();
+        inputParameters->device = selected_input_device_id;
+        inputParameters->channelCount = NUM_CHANNELS;
+        inputParameters->sampleFormat = paInt16;
+        inputParameters->suggestedLatency = Pa_GetDeviceInfo(inputParameters->device)->defaultLowInputLatency;
+        inputParameters->hostApiSpecificStreamInfo = NULL;
+
+        std::string message = "Opening stream on " + std::to_string(selected_input_device_id);
+        p("PortAudio Info", message.c_str(), "audioCallback()");
+
+
+        
+        // PaError err = Pa_OpenDefaultStream(&stream, NUM_CHANNELS, 0, paInt16, SAMPLE_RATE, (SAMPLE_RATE * buffer_ms)/1000, audioCallback, this);
+        PaError err = Pa_OpenStream(&stream, inputParameters, NULL, SAMPLE_RATE, (SAMPLE_RATE * buffer_ms) / 1000, paClipOff, audioCallback, this);
+        if (err != paNoError)
+        {
+            std::string message = "Can't open stream, error: " + (std::string) Pa_GetErrorText(err);
+            p("PortAudio Error", message.c_str(), "recognize_in_thread()");
+            cleanup();
+            return false;
+        }
+
+        // Start audio stream
+        err = Pa_StartStream(stream);
+        if (err != paNoError)
+        {
+            std::string message = "Can't start stream, error: " + (std::string) Pa_GetErrorText(err);
+            p("PortAudio Error", message.c_str(), "recognize_in_thread()");
+            Pa_CloseStream(stream);
+            cleanup();
+            return false;
+        }
         recognition_thread = std::thread(&VoskVoiceRecognition::recognize_in_thread, this); // Start recognition in a separate thread
         recognition_thread.detach();                                                        // Detach the thread
         p("Vosk Info", "Moved to thread, detached.", "start()");
@@ -208,47 +244,22 @@ bool VoskVoiceRecognition::start()
 
 void VoskVoiceRecognition::recognize_in_thread()
 {
-    // Open audio stream
-    PaStreamParameters *inputParameters = new PaStreamParameters();
-    inputParameters->device = selected_input_device_id;
-    inputParameters->channelCount = NUM_CHANNELS;
-    inputParameters->sampleFormat = paInt16;
-    inputParameters->suggestedLatency = Pa_GetDeviceInfo(inputParameters->device)->defaultLowInputLatency;
-    inputParameters->hostApiSpecificStreamInfo = NULL;
-
-    PaStreamFlags streamFlags = paClipOff | paDitherOff;
-
-    PaStream *stream;
-    PaError err = Pa_OpenDefaultStream(&stream, NUM_CHANNELS, 0, paInt16, SAMPLE_RATE, (SAMPLE_RATE * buffer_ms)/1000, audioCallback, this);
-    // PaError err = Pa_OpenStream(&stream, inputParameters, NULL, SAMPLE_RATE, (SAMPLE_RATE * buffer_ms) / 1000, streamFlags, audioCallback, this);
-    if (err != paNoError)
-    {
-        std::string message = "Can't open stream, error: " + (std::string) Pa_GetErrorText(err);
-        p("PortAudio Error", message.c_str(), "recognize_in_thread()");
-        cleanup();
-        return;
-    }
-
-    // Start audio stream
-    err = Pa_StartStream(stream);
-    if (err != paNoError)
-    {
-        std::string message = "Can't start stream, error: " + (std::string) Pa_GetErrorText(err);
-        p("PortAudio Error", message.c_str(), "recognize_in_thread()");
-        Pa_CloseStream(stream);
-        cleanup();
-        return;
-    }
-
     // Loop until is_listening becomes false
     while (is_vosk_listening)
     {
         // Sleep to avoid busy-waiting
         Sleep(buffer_ms);
     }
+}
+
+
+void VoskVoiceRecognition::stop()
+{
+    p("Vosk Info", "Stopping recognition.", "stop()");
+    is_vosk_listening = false;
 
     // Stop and close audio stream
-    err = Pa_StopStream(stream);
+    PaError err = Pa_StopStream(stream);
     if (err != paNoError)
     {
         std::string message = "Can't stop stream, error: " + (std::string) Pa_GetErrorText(err);
@@ -260,16 +271,6 @@ void VoskVoiceRecognition::recognize_in_thread()
     {
         p("PortAudio Error", "Can't close stream", "recognize_in_thread()");
     }
-
-    // Cleanup PortAudio and Vosk
-    cleanup();
-}
-
-
-void VoskVoiceRecognition::stop()
-{
-    p("Vosk Info", "Stopping recognition.", "stop()");
-    is_vosk_listening = false;
 }
 
 void VoskVoiceRecognition::set_size_in_ms(int miliseconds)
@@ -482,7 +483,7 @@ godot::Dictionary VoskVoiceRecognition::get_input_device_info_by_id(int device_i
 godot::Dictionary VoskVoiceRecognition::get_current_input_device_info()
 {
     int defaultDeviceIndex = Pa_GetDefaultInputDevice();
-    if (selected_input_device_id >= 0) {
+    if (selected_input_device_id < 0) {
         defaultDeviceIndex = selected_input_device_id;
     }
 
@@ -515,19 +516,78 @@ void VoskVoiceRecognition::set_accumulate_audio_data(bool enable)
 }
 
 
-godot::String VoskVoiceRecognition::get_partial_result()
+godot::Dictionary VoskVoiceRecognition::get_partial_result()
 {
     if (is_vosk_listening) {
-        return (godot::String) vosk_recognizer_partial_result(recognizer);
+        godot::Dictionary dict = convert_to_dict(vosk_recognizer_partial_result(recognizer));
+        return dict;
     }
 
     return "";
 }
 
-godot::String VoskVoiceRecognition::get_final_result()
+godot::Dictionary VoskVoiceRecognition::get_final_result()
 {
     if (is_vosk_listening) {
-        return (godot::String) vosk_recognizer_final_result(recognizer);
+        godot::Dictionary dict = convert_to_dict(vosk_recognizer_final_result(recognizer));
+        return dict;
     }
     return "";
 }
+
+godot::Dictionary VoskVoiceRecognition::convert_to_dict(const std::string& output) {
+    godot::Dictionary result;
+
+    std::string cleaned_output = output;
+
+    // Remove commas after lines
+    size_t pos = 0;
+    while ((pos = cleaned_output.find(",\n", pos)) != std::string::npos) {
+        cleaned_output.replace(pos, 2, "\n");
+    }
+
+    // Assuming the input string format is JSON-like
+    size_t start_pos = 0;
+    while (true) {
+        // Find the next key-value pair
+        size_t key_pos = cleaned_output.find('"', start_pos);
+        if (key_pos == std::string::npos) break; // No more key-value pairs
+        
+        size_t end_key_pos = cleaned_output.find('"', key_pos + 1);
+        if (end_key_pos == std::string::npos) break; // Invalid format
+        
+        std::string key = cleaned_output.substr(key_pos + 1, end_key_pos - key_pos - 1);
+        
+        // Find the value
+        size_t value_pos = cleaned_output.find(':', end_key_pos);
+        if (value_pos == std::string::npos) break; // Invalid format
+        
+        char first_char = cleaned_output[value_pos + 1];
+        std::string value_str;
+        size_t value_end_pos;
+        if (first_char == '"' || first_char == '\'') {
+            // String value
+            size_t end_quote_pos = cleaned_output.find(first_char, value_pos + 2);
+            if (end_quote_pos == std::string::npos) break; // Invalid format
+            value_str = cleaned_output.substr(value_pos + 2, end_quote_pos - value_pos - 2);
+            value_end_pos = end_quote_pos;
+        } else {
+            // Numeric value
+            size_t end_value_pos = cleaned_output.find_first_not_of("0123456789.-+eE", value_pos + 1);
+            value_str = cleaned_output.substr(value_pos + 1, end_value_pos - value_pos - 1);
+            value_end_pos = end_value_pos;
+        }
+
+        // Convert the value to Godot Variant type
+        godot::Variant value = godot::Variant::parse(value_str.c_str());
+        result[key] = value;
+
+        // Move start_pos to the next key-value pair
+        start_pos = cleaned_output.find(',', value_end_pos);
+        if (start_pos == std::string::npos) break;
+        start_pos++;
+    }
+
+    return result;
+}
+
